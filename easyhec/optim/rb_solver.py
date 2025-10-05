@@ -73,8 +73,9 @@ class RBSolver(nn.Module):
                     Tc_c2l = Tc_c2b @ mount_poses[bid] @ link_poses[bid, link_idx]
                 else:
                     Tc_c2l = Tc_c2b @ link_poses[bid, link_idx]
-                verts, faces = getattr(self, f"vertices_{link_idx}"), getattr(
-                    self, f"faces_{link_idx}"
+                verts, faces = (
+                    getattr(self, f"vertices_{link_idx}"),
+                    getattr(self, f"faces_{link_idx}"),
                 )
                 si = self.renderer.render_mask(verts, faces, intrinsic, Tc_c2l)
                 all_link_si.append(si)
@@ -93,8 +94,7 @@ class RBSolver(nn.Module):
             "ref_masks": masks_ref,
             "error_maps": (all_frame_all_link_si - masks_ref.float()).abs(),
         }
-        # metrics
-        output = dict()
+
         if "gt_camera_pose" in data:
             gt_Tc_c2b = data["gt_camera_pose"]
             if not torch.allclose(gt_Tc_c2b, torch.eye(4).to(gt_Tc_c2b.device)):
